@@ -1,9 +1,9 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
 import { PostCategory } from 'src/entities/category.entity';
 import { DataSource } from 'typeorm';
@@ -45,7 +45,7 @@ export class CategoryService {
     const category = await this.categoryRepository.findOneBy({
       id: categoryId,
     });
-    if (!category) throw new NotFoundException(ResMessage.CATEGORY_NOT_FOUND);
+    if (!category) throw new BadRequestException(ResMessage.CATEGORY_NOT_FOUND);
 
     const childs = await this.categoryRepository.getChilds(categoryId);
     if (childs.length)

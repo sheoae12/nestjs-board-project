@@ -13,6 +13,7 @@ import { SignInDto, SignUpDto, WithDrawUserDto } from './dto/req.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ResMessage } from 'src/common/message/res-message';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
   constructor(
     private userRepository: UserRepository,
     private jwtService: JwtService,
+    private config: ConfigService,
   ) {}
 
   async signUp(payload: SignUpDto) {
@@ -50,11 +52,19 @@ export class AuthService {
     const comparePassword = bcrypt.compareSync(password, user.password);
     if (!comparePassword) throw new UnauthorizedException('password mismatch');
 
-    // TODO: JWT 토큰으로 인증 구현
     const tokenPayload = { sub: user.id, username: user.email };
-    return {
-      accessToken: await this.jwtService.signAsync(tokenPayload),
-    };
+
+    const accessToken = await this.jwtService.signAsync(tokenPayload, {
+      secret: this.config.get<string>('jwt.accessSecret'),
+      expiresIn: '1d',
+    });
+
+    const refreshToken = await this.jwtService.signAsync(tokenPayload, {
+      secret: this.config.get<string>('jwt.refreshSecret'),
+      expiresIn: '7d',
+    });
+
+    return { accessToken, refreshToken };
   }
 
   async withdrawUser(payload: WithDrawUserDto) {

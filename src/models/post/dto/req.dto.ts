@@ -1,5 +1,5 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsNumber, IsOptional, MaxLength } from 'class-validator';
+import { IsNumber, IsOptional } from 'class-validator';
 import { PagingDto } from 'src/common/dto/paging.dto';
 import { Post } from 'src/entities/post.entity';
 
@@ -8,21 +8,11 @@ export class GetPostListDto extends PagingDto {
   userId: number;
 }
 
-export class CreatePostDto {
-  @ApiProperty({
-    description: '제목',
-    example: '성북구 맛집 리스트',
-  })
-  @MaxLength(50)
-  title: string;
-
-  @ApiProperty({
-    description: '내용',
-    example: '제가 다년간 거주하면서 모은 성북구 맛집 정보입니다.',
-  })
-  @MaxLength(1000)
-  content: string;
-
+export class CreatePostDto extends PickType(Post, [
+  'title',
+  'content',
+  'categoryId',
+]) {
   @IsOptional()
   userId: number;
 }
@@ -30,6 +20,7 @@ export class CreatePostDto {
 export class UpdatePostDto extends PickType(CreatePostDto, [
   'title',
   'content',
+  'categoryId',
   'userId',
 ]) {
   @ApiProperty({
@@ -40,5 +31,3 @@ export class UpdatePostDto extends PickType(CreatePostDto, [
   @IsNumber()
   id: number;
 }
-
-export class DeletePostDto extends PickType(Post, ['id']) {}
