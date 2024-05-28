@@ -1,24 +1,27 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { Post } from 'src/entities/post.entity';
 import { PostRepository } from 'src/repositories/post.repository';
-import { CreatePostDto, DeletePostDto, UpdatePostDto } from './dto/req.dto';
+import { CreatePostDto, UpdatePostDto } from './dto/req.dto';
 import { IUserInfo } from 'src/common/types/user-info.type';
 import { ResMessage } from 'src/common/message/res-message';
 import { DataSource } from 'typeorm';
 import { User } from 'src/entities/user.entity';
+import { CategoryRepository } from 'src/repositories/category.repository';
 
 @Injectable()
 export class PostService {
   private logger = new Logger(PostService.name);
   constructor(
     private postRepository: PostRepository,
+    private categoryRepository: CategoryRepository,
     private dataSource: DataSource,
   ) {}
 
@@ -31,7 +34,16 @@ export class PostService {
   }
 
   async createPost(payload: CreatePostDto) {
-    await this.checkUserExist(payload.userId);
+    const { userId, categoryId } = payload;
+
+    await this.checkUserExist(userId);
+
+    const category = await this.categoryRepository.findOneBy({
+      id: categoryId,
+    });
+    if (!category) throw new BadRequestException(ResMessage.CATEGORY_NOT_FOUND);
+    if (!category.parent)
+      throw new BadRequestException('category must not be a root');
 
     const post = plainToInstance(Post, payload);
 
@@ -49,7 +61,7 @@ export class PostService {
     await this.checkUserExist(payload.userId);
 
     const post = await this.postRepository.findOneBy({ id });
-    if (!post) throw new NotFoundException(ResMessage.POST_NOT_FOUND);
+    if (!post) throw new BadRequestException(ResMessage.POST_NOT_FOUND);
 
     this.checkIsAuthor(post.userId, user.sub);
 
@@ -61,16 +73,14 @@ export class PostService {
     }
   }
 
-  async deletePost(payload: DeletePostDto, user: IUserInfo) {
-    const { id } = payload;
-
-    const post = await this.postRepository.findOneBy({ id });
-    if (!post) throw new NotFoundException(ResMessage.POST_NOT_FOUND);
+  async deletePost(postId: number, user: IUserInfo) {
+    const post = await this.postRepository.findOneBy({ id: postId });
+    if (!post) throw new BadRequestException(ResMessage.POST_NOT_FOUND);
 
     this.checkIsAuthor(post.userId, user.sub);
 
     try {
-      await this.postRepository.delete(id);
+      await this.postRepository.delete(postId);
     } catch (error) {
       this.logger.error('deletePost::', error, error.stack);
       throw new InternalServerErrorException(ResMessage.SERVER_ERROR);
@@ -84,6 +94,6 @@ export class PostService {
 
   async checkUserExist(userId: number) {
     const user = await this.dataSource.manager.findOneBy(User, { id: userId });
-    if (!user) throw new NotFoundException(ResMessage.USER_NOT_FOUND);
+    if (!user) throw new UnauthorizedException(ResMessage.USER_NOT_FOUND);
   }
 }

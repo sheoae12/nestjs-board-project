@@ -24,12 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/common/exception-filters/exception-filter';
 import { ResponseInterceptor } from 'src/common/interceptors/response.interceptor';
-import {
-  CreatePostDto,
-  DeletePostDto,
-  GetPostListDto,
-  UpdatePostDto,
-} from './dto/req.dto';
+import { CreatePostDto, GetPostListDto, UpdatePostDto } from './dto/req.dto';
 import { UserAuthGuard } from 'src/common/guards/user-auth.guard';
 import { UserInfo } from 'src/common/decorators/user-info.decorator';
 import { IUserInfo } from 'src/common/types/user-info.type';
@@ -44,20 +39,20 @@ export class PostController {
   constructor(private postService: PostService) {}
 
   @ApiOkResponse()
-  @ApiOperation({ summary: '게시글 목록 조회' })
-  @SetMetadata('exclude', true)
-  @Get('list')
-  async getPostList(@Query() query: GetPostListDto) {
-    return await this.postService.getPostList(query);
-  }
-
-  @ApiOkResponse()
   @ApiNotFoundResponse()
   @ApiOperation({ summary: '게시글 상세 조회' })
   @SetMetadata('exclude', true)
   @Get(':id')
   async getPost(@Param(ParseIntPipe) id: number) {
     return await this.postService.getPost(id);
+  }
+
+  @ApiOkResponse()
+  @ApiOperation({ summary: '게시글 목록 조회' })
+  @SetMetadata('exclude', true)
+  @Get()
+  async getPostList(@Query() query: GetPostListDto) {
+    return await this.postService.getPostList(query);
   }
 
   @ApiOkResponse({ status: 201 })
@@ -88,11 +83,11 @@ export class PostController {
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   @ApiOperation({ summary: '게시글 삭제' })
-  @Delete()
+  @Delete(':postId')
   async deletePost(
-    @Body() payload: DeletePostDto,
+    @Param('postId', ParseIntPipe) postId: number,
     @UserInfo() user: IUserInfo,
   ) {
-    return await this.postService.deletePost(payload, user);
+    return await this.postService.deletePost(postId, user);
   }
 }

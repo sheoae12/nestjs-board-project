@@ -9,13 +9,16 @@ import {
 import { Base } from './base.entity';
 import { User } from './user.entity';
 import { Comment } from './comment.entity';
+import { PostCategory } from './category.entity';
 
-// TODO: 게시판 카테고리 설정
 // TODO: index (검색 향상)
 @Entity()
 export class Post extends Base {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ name: 'category_id', type: 'int' })
+  categoryId: number;
 
   @Column({ type: 'varchar', length: 50 })
   title: string;
@@ -31,6 +34,10 @@ export class Post extends Base {
   })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
+
+  @ManyToOne(() => PostCategory, (pc) => pc.posts, { cascade: true })
+  @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
+  category: PostCategory;
 
   @OneToMany(() => Comment, (comments) => comments.post)
   comments: Comment[];
