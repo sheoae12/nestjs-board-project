@@ -17,6 +17,10 @@ import { DataSource } from 'typeorm';
           username: config.get<string>('database.user'),
           password: config.get('database.password'),
           entities: ['dist/entities/*.entity{.js,.ts}'],
+          bigNumberStrings: false,
+          extra: {
+            decimalNumbers: true,
+          },
           synchronize: true,
           logging: true,
           timezone: 'Z',
