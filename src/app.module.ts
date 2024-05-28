@@ -10,6 +10,7 @@ import { RequestLoggerMiddleware } from './common/middlewares/request-logger.mid
 import { GlobalJwtModule } from './common/core/core.module';
 import { UserModule } from './models/user/user.module';
 import { CommentModule } from './models/comment/comment.module';
+import { CategoryModule } from './models/category/category.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CommentModule } from './models/comment/comment.module';
     AuthModule,
     UserModule,
     CommentModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
