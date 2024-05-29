@@ -50,12 +50,14 @@ export class CommentController {
     @Body() payload: UpdateCommentDto,
     @UserInfo() user: IUserInfo,
   ) {
-    payload.userId = user.sub;
-    return await this.commentService.updateComment(payload);
+    return await this.commentService.updateComment(payload, user);
   }
 
   @Delete(':commentId')
-  async deleteComment(@Param(ParseIntPipe) commentId: number) {
-    return await this.commentService.deleteComment(commentId);
+  async deleteComment(
+    @Param(ParseIntPipe) commentId: number,
+    @UserInfo() user: IUserInfo,
+  ) {
+    return await this.commentService.deleteComment(commentId, user);
   }
 }

@@ -42,9 +42,9 @@ export class PostController {
   @ApiNotFoundResponse()
   @ApiOperation({ summary: '게시글 상세 조회' })
   @SetMetadata('exclude', true)
-  @Get(':id')
-  async getPost(@Param(ParseIntPipe) id: number) {
-    return await this.postService.getPost(id);
+  @Get(':postId')
+  async getPost(@Param('postId', ParseIntPipe) postId: number) {
+    return await this.postService.getPost(postId);
   }
 
   @ApiOkResponse()

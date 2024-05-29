@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -12,6 +13,7 @@ import { User } from 'src/entities/user.entity';
 import { Post } from 'src/entities/post.entity';
 import { plainToInstance } from 'class-transformer';
 import { Comment } from 'src/entities/comment.entity';
+import { IUserInfo } from 'src/common/types/user-info.type';
 
 @Injectable()
 export class CommentService {
@@ -49,17 +51,19 @@ export class CommentService {
     }
   }
 
-  async updateComment(payload: UpdateCommentDto) {
-    const { userId, id } = payload;
+  async updateComment(payload: UpdateCommentDto, user: IUserInfo) {
+    const { userId, commentId } = payload;
 
     await this.checkUserExist(userId);
 
-    const comment = await this.commentRepository.findOneBy({ id });
+    const comment = await this.commentRepository.findOneBy({ id: commentId });
     if (!comment) throw new NotFoundException(ResMessage.COMMENT_NOT_FOUND);
+
+    this.checkIsAuthor(comment.userId, user.sub);
 
     try {
       await this.commentRepository.update(
-        id,
+        commentId,
         plainToInstance(Comment, payload),
       );
     } catch (error) {
@@ -68,9 +72,11 @@ export class CommentService {
     }
   }
 
-  async deleteComment(id: number) {
-    const user = await this.commentRepository.findOneBy({ id });
-    if (!user) throw new NotFoundException(ResMessage.COMMENT_NOT_FOUND);
+  async deleteComment(id: number, user: IUserInfo) {
+    const comment = await this.commentRepository.findOneBy({ id });
+    if (!comment) throw new NotFoundException(ResMessage.COMMENT_NOT_FOUND);
+
+    this.checkIsAuthor(comment.userId, user.sub);
 
     try {
       await this.commentRepository.softDelete(id);
@@ -78,6 +84,11 @@ export class CommentService {
       this.logger.error('deleteComment::', error, error.stack);
       throw new InternalServerErrorException(ResMessage.SERVER_ERROR);
     }
+  }
+
+  checkIsAuthor(commentUserId: number, userId: number) {
+    if (commentUserId !== userId)
+      throw new ForbiddenException(ResMessage.NOT_AUTHOR);
   }
 
   async checkUserExist(userId: number) {

@@ -41,5 +41,5 @@ export class UpdateCommentDto extends PickType(CreateCommentDto, [
     type: 'number',
   })
   @IsNumber()
-  id: number;
+  commentId: number;
 }

@@ -29,8 +29,8 @@ export class PostService {
     return await this.postRepository.getPostList(query);
   }
 
-  async getPost(id: number) {
-    const post = await this.postRepository.findOneBy({ id });
+  async getPost(postId: number) {
+    const post = await this.postRepository.findOneBy({ id: postId });
 
     if (!post) return new BadRequestException(ResMessage.POST_NOT_FOUND);
     return post;
@@ -41,9 +41,13 @@ export class PostService {
 
     await this.checkUserExist(userId);
 
-    const category = await this.categoryRepository.findOneBy({
-      id: categoryId,
+    const category = await this.categoryRepository.findOne({
+      where: {
+        id: categoryId,
+      },
+      relations: ['parent'],
     });
+
     if (!category) throw new BadRequestException(ResMessage.CATEGORY_NOT_FOUND);
     if (!category.parent)
       throw new BadRequestException(ResMessage.CANNOT_USE_ROOT_CATEGORY);
