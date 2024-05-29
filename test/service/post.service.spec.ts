@@ -249,7 +249,7 @@ describe('PostService', () => {
 
       // when, then
       expect(service.createPost(payload)).rejects.toStrictEqual(
-        new BadRequestException('category must not be a root'),
+        new BadRequestException(ResMessage.CANNOT_USE_ROOT_CATEGORY),
       );
     });
 
@@ -356,7 +356,7 @@ describe('PostService', () => {
 
       // when, then
       expect(service.updatePost(payload, user)).rejects.toStrictEqual(
-        new BadRequestException('category must not be a root'),
+        new BadRequestException(ResMessage.CANNOT_USE_ROOT_CATEGORY),
       );
     });
 
@@ -418,7 +418,7 @@ describe('PostService', () => {
 
       // when, then
       expect(service.updatePost(payload, fakeUser)).rejects.toStrictEqual(
-        new ForbiddenException('no permission: not an author'),
+        new ForbiddenException(ResMessage.NOT_AUTHOR),
       );
       expect(categoryRepositorySpy).toHaveBeenCalledWith({
         id: payload.categoryId,
@@ -435,7 +435,6 @@ describe('PostService', () => {
         userId: 1,
       });
       const post = plainToInstance(Post, payload);
-      console.log(';;post', post);
 
       jest.spyOn(service, 'checkUserExist').mockResolvedValue();
       const categoryRepositorySpy = jest
@@ -501,7 +500,7 @@ describe('PostService', () => {
 
       // when, then
       expect(service.deletePost(postId, fakeUser)).rejects.toStrictEqual(
-        new ForbiddenException('no permission: not an author'),
+        new ForbiddenException(ResMessage.NOT_AUTHOR),
       );
       expect(postRepositorySpy).toHaveBeenCalledWith({ id: postId });
     });

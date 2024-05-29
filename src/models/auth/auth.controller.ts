@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Delete,
+  Param,
+  ParseIntPipe,
   Post,
   UseFilters,
   UseInterceptors,
@@ -15,7 +17,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { SignInDto, SignUpDto, WithDrawUserDto } from './dto/req.dto';
+import { SignInDto, SignUpDto } from './dto/req.dto';
 import { HttpExceptionFilter } from 'src/common/exception-filters/exception-filter';
 import { ResponseInterceptor } from 'src/common/interceptors/response.interceptor';
 
@@ -47,8 +49,8 @@ export class AuthController {
   @ApiInternalServerErrorResponse()
   @ApiNotFoundResponse()
   @ApiOperation({ summary: '탈퇴' })
-  @Delete('withdraw')
-  async withdrawUser(@Body() body: WithDrawUserDto) {
-    return await this.authService.withdrawUser(body);
+  @Delete('withdraw/:userId')
+  async withdrawUser(@Param('userId', ParseIntPipe) userId: number) {
+    return await this.authService.withdrawUser(userId);
   }
 }

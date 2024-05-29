@@ -49,11 +49,11 @@ export class CategoryService {
 
     const childs = await this.categoryRepository.getChilds(categoryId);
     if (childs.length)
-      throw new ForbiddenException('cannot delete parent category');
+      throw new ForbiddenException(ResMessage.CANNOT_DELETE_ROOT_CATEGORY);
 
     const post = await this.dataSource.manager.findBy(Post, { categoryId });
     if (post.length)
-      throw new ForbiddenException('cannot delete in-use category');
+      throw new ForbiddenException(ResMessage.CANNOT_DELETE_USING_CATEGORY);
 
     try {
       await this.categoryRepository.delete(categoryId);

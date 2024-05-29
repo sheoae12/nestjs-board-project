@@ -46,7 +46,7 @@ export class PostService {
     });
     if (!category) throw new BadRequestException(ResMessage.CATEGORY_NOT_FOUND);
     if (!category.parent)
-      throw new BadRequestException('category must not be a root');
+      throw new BadRequestException(ResMessage.CANNOT_USE_ROOT_CATEGORY);
 
     const post = plainToInstance(Post, payload);
 
@@ -68,7 +68,7 @@ export class PostService {
     });
     if (!category) throw new BadRequestException(ResMessage.CATEGORY_NOT_FOUND);
     if (!category.parent)
-      throw new BadRequestException('category must not be a root');
+      throw new BadRequestException(ResMessage.CANNOT_USE_ROOT_CATEGORY);
 
     const post = await this.postRepository.findOneBy({ id });
     if (!post) throw new BadRequestException(ResMessage.POST_NOT_FOUND);
@@ -99,7 +99,7 @@ export class PostService {
 
   checkIsAuthor(postUserId: number, userId: number) {
     if (postUserId !== userId)
-      throw new ForbiddenException('no permission: not an author');
+      throw new ForbiddenException(ResMessage.NOT_AUTHOR);
   }
 
   async checkUserExist(userId: number) {
