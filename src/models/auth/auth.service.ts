@@ -35,8 +35,6 @@ export class AuthService {
     const salt = bcrypt.genSaltSync(10);
     user.password = bcrypt.hashSync(password, salt);
 
-    console.log('pw', user.password);
-
     try {
       return await this.userRepository.save(user);
     } catch (error) {
@@ -58,7 +56,6 @@ export class AuthService {
     const tokenPayload = { sub: user.id, username: user.email };
 
     const accessToken = await this.jwtService.signAsync(tokenPayload, {
-      secret: this.config.get<string>('jwt.accessSecret'),
       expiresIn: '1d',
     });
 

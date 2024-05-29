@@ -5,12 +5,13 @@ import { JwtModule } from '@nestjs/jwt';
 @Global()
 @Module({
   imports: [
+    ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
+      useFactory: async (config: ConfigService) => {
         return {
-          secret: config.get<string>('jwt.secret'),
+          secret: config.get<string>('jwt.accessSecret'),
           // signOptions: { expiresIn: '1d' },
         };
       },
