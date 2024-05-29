@@ -17,7 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:service": "jest --config ./test/jest-unit.json --runInBand --detectOpenHandles --forceExit",
+    "test:service:cov": "jest --coverage --config ./test/jest-unit.json",
+    "test:cover": "jest --coverage --collectCoverageFrom=**/models/*/*.service.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

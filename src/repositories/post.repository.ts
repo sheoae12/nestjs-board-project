@@ -15,7 +15,8 @@ export class PostRepository extends Repository<Post> {
     super(repository.target, repository.manager, repository.queryRunner);
   }
 
-  async getPostList(query: GetPostListDto) {
+  // TODO: category 별 검색도 추가
+  async getPostList(query: GetPostListDto): Promise<[Post[], number]> {
     const { userId } = query;
 
     const qb = this.repository

@@ -9,7 +9,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { Post } from 'src/entities/post.entity';
 import { PostRepository } from 'src/repositories/post.repository';
-import { CreatePostDto, UpdatePostDto } from './dto/req.dto';
+import { CreatePostDto, GetPostListDto, UpdatePostDto } from './dto/req.dto';
 import { IUserInfo } from 'src/common/types/user-info.type';
 import { ResMessage } from 'src/common/message/res-message';
 import { DataSource } from 'typeorm';
@@ -25,12 +25,15 @@ export class PostService {
     private dataSource: DataSource,
   ) {}
 
-  async getPostList(query) {
+  async getPostList(query: GetPostListDto) {
     return await this.postRepository.getPostList(query);
   }
 
   async getPost(id: number) {
-    return await this.postRepository.findOneBy({ id });
+    const post = await this.postRepository.findOneBy({ id });
+
+    if (!post) return new BadRequestException(ResMessage.POST_NOT_FOUND);
+    return post;
   }
 
   async createPost(payload: CreatePostDto) {
@@ -56,9 +59,16 @@ export class PostService {
   }
 
   async updatePost(payload: UpdatePostDto, user: IUserInfo) {
-    const { id } = payload;
+    const { id, categoryId } = payload;
 
     await this.checkUserExist(payload.userId);
+
+    const category = await this.categoryRepository.findOneBy({
+      id: categoryId,
+    });
+    if (!category) throw new BadRequestException(ResMessage.CATEGORY_NOT_FOUND);
+    if (!category.parent)
+      throw new BadRequestException('category must not be a root');
 
     const post = await this.postRepository.findOneBy({ id });
     if (!post) throw new BadRequestException(ResMessage.POST_NOT_FOUND);
