@@ -11,4 +11,5 @@ export enum ResMessage {
   CANNOT_USE_ROOT_CATEGORY = 'category must not be a root',
   CANNOT_DELETE_ROOT_CATEGORY = 'cannot delete parent category',
   CANNOT_DELETE_USING_CATEGORY = 'cannot delete in-use category',
+  DUPLICATE_CATEGORY = 'category already exist',
 }

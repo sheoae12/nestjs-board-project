@@ -9,7 +9,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { ResMessage } from 'src/common/message/res-message';
 import { User } from 'src/entities/user.entity';
-import { AuthService } from 'src/models/auth/auth.service';
+import { AuthService } from 'src/module/auth/auth.service';
 import { UserRepository } from 'src/repositories/user.repository';
 
 describe('AuthService', () => {
@@ -22,7 +22,7 @@ describe('AuthService', () => {
     password: '$2b$10$ML7yOOSBL3bnh91ib3WxqOjU6W.ij59.etnRvU7TuSqSsdX9a5Lwm',
   });
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,

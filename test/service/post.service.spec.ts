@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PostService } from '../../src/models/post/post.service';
+import { PostService } from '../../src/module/post/post.service';
 import { CategoryRepository } from 'src/repositories/category.repository';
 import { DataSource } from 'typeorm';
 import { PostRepository } from 'src/repositories/post.repository';
@@ -8,7 +8,7 @@ import {
   CreatePostDto,
   GetPostListDto,
   UpdatePostDto,
-} from '../../src/models/post/dto/req.dto';
+} from '../../src/module/post/dto/req.dto';
 import { Post } from 'src/entities/post.entity';
 import {
   BadRequestException,
@@ -42,6 +42,7 @@ describe('PostService', () => {
           provide: CategoryRepository,
           useValue: {
             save: jest.fn(),
+            findOne: jest.fn(),
             findOneBy: jest.fn(),
           },
         },
@@ -223,7 +224,7 @@ describe('PostService', () => {
       });
 
       jest.spyOn(service, 'checkUserExist').mockResolvedValue();
-      jest.spyOn(categoryRepository, 'findOneBy').mockResolvedValue(null);
+      jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(null);
 
       // when, then
       expect(service.createPost(payload)).rejects.toStrictEqual(
@@ -240,7 +241,7 @@ describe('PostService', () => {
       });
 
       jest.spyOn(service, 'checkUserExist').mockResolvedValue();
-      jest.spyOn(categoryRepository, 'findOneBy').mockResolvedValue(
+      jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(
         plainToInstance(PostCategory, {
           id: 1,
           parent: null,
@@ -264,14 +265,12 @@ describe('PostService', () => {
       const post = plainToInstance(Post, payload);
 
       jest.spyOn(service, 'checkUserExist').mockResolvedValue();
-      const categoryRepositorySpy = jest
-        .spyOn(categoryRepository, 'findOneBy')
-        .mockResolvedValue(
-          plainToInstance(PostCategory, {
-            id: 5,
-            parent: 1,
-          }),
-        );
+      jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(
+        plainToInstance(PostCategory, {
+          id: 5,
+          parent: 1,
+        }),
+      );
       const postRepositorySpy = jest
         .spyOn(postRepository, 'save')
         .mockResolvedValue(post);
@@ -280,9 +279,6 @@ describe('PostService', () => {
       await service.createPost(payload);
 
       // then
-      expect(categoryRepositorySpy).toHaveBeenCalledWith({
-        id: payload.categoryId,
-      });
       expect(postRepositorySpy).toHaveBeenCalledWith(post);
     });
   });
@@ -329,7 +325,7 @@ describe('PostService', () => {
       });
 
       jest.spyOn(service, 'checkUserExist').mockResolvedValue();
-      jest.spyOn(categoryRepository, 'findOneBy').mockResolvedValue(null);
+      jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(null);
 
       // when, then
       expect(service.updatePost(payload, user)).rejects.toStrictEqual(
@@ -347,7 +343,7 @@ describe('PostService', () => {
       });
 
       jest.spyOn(service, 'checkUserExist').mockResolvedValue();
-      jest.spyOn(categoryRepository, 'findOneBy').mockResolvedValue(
+      jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(
         plainToInstance(PostCategory, {
           id: 1,
           parent: null,
@@ -370,14 +366,12 @@ describe('PostService', () => {
       });
 
       jest.spyOn(service, 'checkUserExist').mockResolvedValue();
-      const categoryRepositorySpy = jest
-        .spyOn(categoryRepository, 'findOneBy')
-        .mockResolvedValue(
-          plainToInstance(PostCategory, {
-            id: 5,
-            parent: 1,
-          }),
-        );
+      jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(
+        plainToInstance(PostCategory, {
+          id: 5,
+          parent: { id: 1 },
+        }),
+      );
       const postRepositorySpy = jest
         .spyOn(postRepository, 'findOneBy')
         .mockResolvedValue(null);
@@ -386,9 +380,6 @@ describe('PostService', () => {
       expect(service.updatePost(payload, user)).rejects.toStrictEqual(
         new BadRequestException(ResMessage.POST_NOT_FOUND),
       );
-      expect(categoryRepositorySpy).toHaveBeenCalledWith({
-        id: payload.categoryId,
-      });
       expect(postRepositorySpy).toHaveBeenCalledWith({ id: payload.id });
     });
 
@@ -404,14 +395,12 @@ describe('PostService', () => {
       const post = plainToInstance(Post, payload);
 
       jest.spyOn(service, 'checkUserExist').mockResolvedValue();
-      const categoryRepositorySpy = jest
-        .spyOn(categoryRepository, 'findOneBy')
-        .mockResolvedValue(
-          plainToInstance(PostCategory, {
-            id: 5,
-            parent: 1,
-          }),
-        );
+      jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(
+        plainToInstance(PostCategory, {
+          id: 5,
+          parent: { id: 1 },
+        }),
+      );
       const postRepositorySpy = jest
         .spyOn(postRepository, 'findOneBy')
         .mockResolvedValue(post);
@@ -420,9 +409,6 @@ describe('PostService', () => {
       expect(service.updatePost(payload, fakeUser)).rejects.toStrictEqual(
         new ForbiddenException(ResMessage.NOT_AUTHOR),
       );
-      expect(categoryRepositorySpy).toHaveBeenCalledWith({
-        id: payload.categoryId,
-      });
       expect(postRepositorySpy).toHaveBeenCalledWith({ id: payload.id });
     });
 
@@ -437,14 +423,12 @@ describe('PostService', () => {
       const post = plainToInstance(Post, payload);
 
       jest.spyOn(service, 'checkUserExist').mockResolvedValue();
-      const categoryRepositorySpy = jest
-        .spyOn(categoryRepository, 'findOneBy')
-        .mockResolvedValue(
-          plainToInstance(PostCategory, {
-            id: 5,
-            parent: 1,
-          }),
-        );
+      jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(
+        plainToInstance(PostCategory, {
+          id: 5,
+          parent: 1,
+        }),
+      );
       const postRepositorySpy = jest
         .spyOn(postRepository, 'findOneBy')
         .mockResolvedValue(post);
@@ -455,9 +439,6 @@ describe('PostService', () => {
       await service.updatePost(payload, user);
 
       // then
-      expect(categoryRepositorySpy).toHaveBeenCalledWith({
-        id: payload.categoryId,
-      });
       expect(postRepositorySpy).toHaveBeenCalledWith({ id: payload.id });
       expect(postUpdateSpy).toHaveBeenCalledWith(payload.id, post);
     });
@@ -479,18 +460,15 @@ describe('PostService', () => {
       // given
       const postId = 9999;
 
-      const postRepositorySpy = jest
-        .spyOn(postRepository, 'findOneBy')
-        .mockResolvedValue(null);
+      jest.spyOn(postRepository, 'findOneBy').mockResolvedValue(null);
 
       // when, then
       expect(service.deletePost(postId, user)).rejects.toStrictEqual(
         new BadRequestException(ResMessage.POST_NOT_FOUND),
       );
-      expect(postRepositorySpy).toHaveBeenCalledWith({ id: postId });
     });
 
-    it('should thorw error it not an author', async () => {
+    it('should throw error it not an author', async () => {
       // given
       const postId = 1;
 

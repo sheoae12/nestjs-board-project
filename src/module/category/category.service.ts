@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -31,6 +32,21 @@ export class CategoryService {
   }
 
   async createCategory(payload: CreateCategoryDto) {
+    const { text, parent } = payload;
+
+    if (parent) {
+      const parentExist = await this.categoryRepository.existsBy({
+        id: parent,
+      });
+      if (!parentExist)
+        throw new BadRequestException(ResMessage.CATEGORY_NOT_FOUND);
+    }
+
+    const dupliateCategory = await this.categoryRepository.findOneBy({ text });
+    console.log('---', dupliateCategory);
+    if (dupliateCategory && dupliateCategory.parent.id === parent)
+      throw new ConflictException(ResMessage.DUPLICATE_CATEGORY);
+
     try {
       return await this.categoryRepository.save(
         plainToInstance(PostCategory, payload),

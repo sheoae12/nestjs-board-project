@@ -14,7 +14,7 @@
   "setupFiles": ["dotenv/config"],
   "verbose": true,
   "collectCoverageFrom": [
-    "src/models/**/*.service.ts"
+    "src/module/**/*.service.ts"
   ],
   "coverageDirectory": "<rootDir>/coverage"
 }
