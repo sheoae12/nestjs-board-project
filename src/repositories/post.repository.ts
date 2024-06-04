@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/entities/post.entity';
-import { GetPostListDto } from 'src/models/post/dto/req.dto';
+import { GetPostListDto } from 'src/module/post/dto/req.dto';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -93,11 +94,11 @@ export class CommentService {
 
   async checkUserExist(userId: number) {
     const user = await this.dataSource.manager.findOneBy(User, { id: userId });
-    if (!user) throw new NotFoundException(ResMessage.USER_NOT_FOUND);
+    if (!user) throw new BadRequestException(ResMessage.USER_NOT_FOUND);
   }
 
   async checkPostExist(postId: number) {
     const post = await this.dataSource.manager.findOneBy(Post, { id: postId });
-    if (!post) throw new NotFoundException(ResMessage.POST_NOT_FOUND);
+    if (!post) throw new BadRequestException(ResMessage.POST_NOT_FOUND);
   }
 }

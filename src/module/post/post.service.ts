@@ -67,9 +67,13 @@ export class PostService {
 
     await this.checkUserExist(payload.userId);
 
-    const category = await this.categoryRepository.findOneBy({
-      id: categoryId,
+    const category = await this.categoryRepository.findOne({
+      where: {
+        id: categoryId,
+      },
+      relations: ['parent'],
     });
+
     if (!category) throw new BadRequestException(ResMessage.CATEGORY_NOT_FOUND);
     if (!category.parent)
       throw new BadRequestException(ResMessage.CANNOT_USE_ROOT_CATEGORY);
